@@ -25,6 +25,5 @@ namespace Obix_JACE_V1.Obix
                 throw new InvalidOperationException();
             }
         }
-
     }
 }
