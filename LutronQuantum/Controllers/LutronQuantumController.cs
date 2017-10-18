@@ -1,6 +1,7 @@
 ﻿using LutronQuantum.Models.LutronObix;
 using LutronQuantum.Obix.ObixActions;
 using Obix_JACE_V1.Obix;
+using Obix_JACE_V1.Obix.ObixActions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -62,7 +63,7 @@ namespace LutronQuantum.Controllers
         [Route("SaveLightLevel")]
         public IHttpActionResult SaveLightLevel(DeviceEntity deviceObj)
         {
-            ReadActions.SaveLightLevel(deviceObj);
+            WriteActions.SaveLightLevel(deviceObj);
             return Ok();
         }
 

@@ -18,6 +18,5 @@ namespace Obix_JACE_V1.Models.Lutron
         public bool isActive { get; set; }
         public System.DateTime DateOfEntry { get; set; }
 
-
     }
 }

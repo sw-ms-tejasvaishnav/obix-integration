@@ -595,22 +595,7 @@ namespace LutronQuantum.Obix.ObixActions
 
         }
 
-        /// <summary>
-        /// Save light level in obix device.
-        /// </summary>
-        /// <param name="deviceObj">Passes light level</param>
-        public static void SaveLightLevel(DeviceEntity deviceObj)
-        {
-            var obixClient = obixClientInit.oBixClient;
-            var lightLevelUrl = ConfigurationManager.AppSettings["ObixMasterUrl"].ToString() +
-            ConfigurationManager.AppSettings["LightLevel"].ToString();
-            XElement element = new XElement("real");
-            element.SetAttributeValue("val", deviceObj.LightLevel);
-            element.SetAttributeValue("is", "obix:WritePointIn");
-            element.SetAttributeValue("unit", "obix:units/percent");
-            obixClient.InvokeUriXml(new Uri(lightLevelUrl), element);
-
-        }
+   
 
     }
 }
