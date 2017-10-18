@@ -35,7 +35,7 @@ namespace LutronQuantum.Obix.ObixActions
             string deviceUrl = ConfigurationManager.AppSettings["ObixMasterUrl"].ToString() +
                 ConfigurationManager.AppSettings["DeviceData"].ToString();
 
-            var xmlsineWaveRollupResult = obixClientInit.oBixClient.ReadUriXml(new Uri(deviceUrl));
+            var xmlsineWaveRollupResult = obixClient.ReadUriXml(new Uri(deviceUrl));
 
             foreach (XNode node in xmlsineWaveRollupResult.Result.Document.Nodes())
             {
@@ -89,7 +89,7 @@ namespace LutronQuantum.Obix.ObixActions
                                                                 }
                                                             }
                                                             else if (basicNodeElement == null || basicNodeElement.FirstAttribute.Value == null
-                                                             ? false : basicNodeElement.FirstAttribute.Value == DeviceNameType.LightState)
+                                                            ? false : basicNodeElement.FirstAttribute.Value == DeviceNameType.LightState)
                                                             {
                                                                 var lightStateUrl = basicPointsUrl + basicNodeElement.Attribute("href").Value;
                                                                 var lightStateXmlData = obixClientInit.oBixClient.ReadUriXml(new Uri(lightStateUrl));
@@ -439,7 +439,11 @@ namespace LutronQuantum.Obix.ObixActions
             }
         }
 
-
+        /// <summary>
+        /// Gets device list from data base.
+        /// </summary>
+        /// <param name="deviceType">Passes selected device type.4</param>
+        /// <returns>Selected device type resule from data base.</returns>
         public static List<LigtingModel> GetDeviceList(int deviceType)
         {
             var devicedetail = (from bd in _dbcontext.ObixDevices
@@ -459,6 +463,10 @@ namespace LutronQuantum.Obix.ObixActions
             return devicedetail;
         }
 
+        /// <summary>
+        /// Gets device type from device.
+        /// </summary>
+        /// <returns>Device type list base on device area.</returns>
         public static List<DeviceType> GetDeviceType()
         {
             var deviceTypeLst = new List<DeviceType>();
@@ -587,7 +595,22 @@ namespace LutronQuantum.Obix.ObixActions
 
         }
 
+        /// <summary>
+        /// Save light level in obix device.
+        /// </summary>
+        /// <param name="deviceObj">Passes light level</param>
+        public static void SaveLightLevel(DeviceEntity deviceObj)
+        {
+            var obixClient = obixClientInit.oBixClient;
+            var lightLevelUrl = ConfigurationManager.AppSettings["ObixMasterUrl"].ToString() +
+            ConfigurationManager.AppSettings["LightLevel"].ToString();
+            XElement element = new XElement("real");
+            element.SetAttributeValue("val", deviceObj.LightLevel);
+            element.SetAttributeValue("is", "obix:WritePointIn");
+            element.SetAttributeValue("unit", "obix:units/percent");
+            obixClient.InvokeUriXml(new Uri(lightLevelUrl), element);
 
+        }
 
     }
 }

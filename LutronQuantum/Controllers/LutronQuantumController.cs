@@ -1,4 +1,5 @@
-﻿using LutronQuantum.Obix.ObixActions;
+﻿using LutronQuantum.Models.LutronObix;
+using LutronQuantum.Obix.ObixActions;
 using Obix_JACE_V1.Obix;
 using System;
 using System.Collections.Generic;
@@ -55,6 +56,14 @@ namespace LutronQuantum.Controllers
             ReadActions.SaveCurrentLutronQuatumDetail();
             var deviceLst = ReadActions.GetDeviceList(0);
             return Ok(deviceLst);
+        }
+
+        [HttpPost]
+        [Route("SaveLightLevel")]
+        public IHttpActionResult SaveLightLevel(DeviceEntity deviceObj)
+        {
+            ReadActions.SaveLightLevel(deviceObj);
+            return Ok();
         }
 
     }

@@ -1,0 +1,16 @@
+
+---> Write xml code and url for light level.
+URL:- http://173.165.100.105/obix/config/Drivers/ObixNetwork/exports/Lighting%2420Level/
+
+Xml Object:- <real is="obix:WritePointIn" unit="obix:units/percent" val="50.0"/>
+
+---> Write xml code and url for day light.
+URL:- http://173.165.100.105/obix/config/Drivers/ObixNetwork/exports/Daylighting%2420Enabled/
+
+Xml Object:- <bool is="obix:WritePointIn" val="false"/>
+
+
+---> Write xml code and url for light scene.
+URL:- http://173.165.100.105/obix/config/Drivers/ObixNetwork/exports/Lighting%2420Scene/
+
+Xml Object:- <enum is="/obix/def/baja:StatusEnum" val="6" status="overridden"/> 

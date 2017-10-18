@@ -4,7 +4,7 @@
 }
 <head>
     <link href="~/Content/font-awesome.min.css" rel="stylesheet" />
-    <link href="~/Content/CSS/bootstrap.css" rel="stylesheet" />   
+    <link href="~/Content/CSS/bootstrap.css" rel="stylesheet" />
 
     <link href="~/Content/Site.css" rel="stylesheet" />
     <link href="~/Content/datatable.css" rel="stylesheet" />
@@ -14,34 +14,40 @@
     div.container {
         width: 80%;
     }
+
     .btn-sm, .btn-group-sm > .btn {
         padding: 4px 7px;
         font-size: 15px;
         line-height: 1.5;
         border-radius: 3px;
     }
+
     .btnsearchstyle {
         background-color: dimgrey;
         color: white;
     }
+
     .txtalignright {
         text-align: right;
     }
-    .floatright{
-        float:right;
-    }
 
+    .floatright {
+        float: right;
+    }
+    .displaynone{
+        display:none;
+    }
 </style>
 
 <html>
 
 <body>
     <h2>Lutron Quantum</h2>
-  
+
     <div class="col-sm-12">
-        <form data-toggle="validator" class="col-sm-6" role="form" id="frmSchedule">
+        <form data-toggle="validator" class="col-sm-6" role="form" id="frmLutronDevice">
             <h4>Search Device </h4>
-         
+
 
             <hr />
             <div class="form-group">
@@ -52,12 +58,19 @@
                 <label for="ddlDeviceType">Device Type</label>
                 <select class="form-control" id="ddlDeviceType" name="ddlDeviceType" required></select>
             </div>
+            <div class="form-group" id="appendControl">
+
+            </div>
+            <button type="submit" class="btn-sm btnsearchstyle displaynone" id="btnSubmit" >
+                Submit
+            </button>
             <button type="button" class="btn-sm btnsearchstyle" id="btnSearch">
-           <i class="fa  fa-search"> &nbsp;Search</i>
+                <i class="fa  fa-search"> &nbsp;Search</i>
             </button>
             <button type="button" class="btn-sm btnsearchstyle" id="btnReferesh">
                 <i class="fa fa-refresh" aria-hidden="true">&nbsp; Refresh</i>
             </button>
+         
         </form>
 
     </div>
