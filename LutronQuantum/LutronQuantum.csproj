@@ -215,9 +215,11 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\LutronObix\DeviceDetailEntity.cs" />
     <Compile Include="Models\LutronObix\DeviceEntity.cs" />
     <Compile Include="Models\LutronObix\DeviceType.cs" />
     <Compile Include="Models\LutronObix\LigtingModel.cs" />
+    <Compile Include="Models\LutronObix\SceneEntity.cs" />
     <Compile Include="Obix\ObixActions\ReadActions.cs" />
     <Compile Include="Obix\ObixActions\WriteActions.cs" />
     <Compile Include="Obix\ObixClientInit.cs" />
@@ -225,13 +227,17 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\HelpPage\HelpPage.css" />
+    <Content Include="Content\bootstrap-slider.min.css" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
+    <Content Include="Content\bootstrap-toggle.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\datatable.css" />
     <Content Include="Content\font-awesome.css" />
     <Content Include="Content\font-awesome.min.css" />
+    <Content Include="Content\Loader.css" />
+    <Content Include="Content\RangeSlidar.css" />
     <Content Include="Data Modal\ESDLutronQuantum.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>ESDLutronQuantum.Context.cs</LastGenOutput>
@@ -246,6 +252,7 @@
     <Content Include="Global.asax" />
     <Content Include="Scripts\bootstrap-datetimepicker.js" />
     <Content Include="Scripts\bootstrap-datetimepicker.min.js" />
+    <Content Include="Scripts\bootstrap-toggle.min.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Areas\HelpPage\Views\Web.config" />

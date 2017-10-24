@@ -5,10 +5,10 @@ using System.Web;
 
 namespace LutronQuantum.Models.LutronObix
 {
-    public class DeviceEntity
+    public class SceneEntity
     {
-        public double LightLevel { get; set; }
 
-        public bool CurrentStatus { get; set; }
+        public int SceneId { get; set; }
+        public string SceneName { get; set; }
     }
 }

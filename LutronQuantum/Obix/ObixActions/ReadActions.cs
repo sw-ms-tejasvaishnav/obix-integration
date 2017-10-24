@@ -439,6 +439,8 @@ namespace LutronQuantum.Obix.ObixActions
             }
         }
 
+
+
         /// <summary>
         /// Gets device list from data base.
         /// </summary>
@@ -595,7 +597,55 @@ namespace LutronQuantum.Obix.ObixActions
 
         }
 
-   
 
+        public static List<SceneEntity> GetEnumList<T>()
+        {
+            var list = new List<SceneEntity>();
+            foreach (var e in Enum.GetValues(typeof(T)))
+            {
+                list.Add(new SceneEntity { SceneId = (int)e, SceneName = e.ToString() });
+            }
+            return list;
+        }
+
+
+        public static LigtingModel GetCurrentLightState( int deviceType)
+        {
+            var devicedetail = (from bd in _dbcontext.ObixDevices
+                                where bd.isActive == true
+                                //&& bd.DeviceId == deviceId 
+                                //need to add deviceid so that light state can get based on device id.
+                                && bd.object_instance == deviceType
+                                select new LigtingModel
+                                {
+                                    DeviceName = bd.DeviceName,
+                                    DeviceType = bd.DeviceType,
+                                    DeviceUrl = bd.DeviceUrl,
+                                    Unit = bd.Unit,
+                                    DateOfEntry = bd.DateOfEntry,
+                                    Status = bd.Status,
+                                    ValueType = bd.ValueType,
+                                    Value = bd.Value
+                                }).FirstOrDefault();
+
+            return devicedetail;
+        }
+
+        public static DeviceDetailEntity GetsCurrentDeviceLevel()
+        {
+            var devicedetail = new DeviceDetailEntity
+            {
+                LightLevel = _dbcontext.ObixDevices.Where(y => y.object_instance == (int)DeviceEnum.LightLevel && y.isActive == true).Select(y => y.Value).FirstOrDefault(),
+                LightScene = _dbcontext.ObixDevices.Where(y => y.object_instance == (int)DeviceEnum.Scene && y.isActive == true).Select(y => y.Value).FirstOrDefault(),
+                LightState = _dbcontext.ObixDevices.Where(y => y.object_instance == (int)DeviceEnum.LightState && y.isActive == true).Select(y => y.Value).FirstOrDefault()
+            };
+            if(devicedetail!= null)
+            {                 
+               devicedetail.LightSceneValue = (int)Enum.Parse(typeof(LightSceneEnum), devicedetail.LightScene.Replace("$20","").Replace("20", ""));
+
+
+            }
+            return devicedetail;
+        }
     }
 }

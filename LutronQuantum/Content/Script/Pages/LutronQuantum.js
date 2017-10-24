@@ -6,23 +6,13 @@ var selectedType = {
 };
 
 $(document).ready(function () {
+    BindDropDown();
 
-    BindLutronDeviceTable(0);
-
-    
-    $('#ddlDeviceType').on('change', function () {
-
-        var selectedValue = $('#ddlDeviceType').val();
+    $('#ddlSceneType').on('change', function () {
+        var selectedValue = $('#ddlSceneType').val();
         if (selectedValue != 0) {
-            if (selectedType.LtgLevel == selectedValue)
-            {
-                var txtBox = AppendTextBox(selectedValue);
-                $("#appendControl").append(txtBox);
-                $("#btnSubmit").removeClass('displaynone');
-                ValidatePage();
-            }
-        } else {
-            $("#btnSubmit").addClass('displaynone');
+            $("#loader").removeClass('displaynone');
+            SaveDeviceScene();
         }
     });
 
@@ -30,198 +20,207 @@ $(document).ready(function () {
 
         var selectedValue = $('#ddldeviceArea').val();
         if (selectedValue != 0) {
-            BindDeviceType(selectedValue);
+            
+            $("#lightLevelSlidar").attr("disabled", false);
         } else {
-            $('#ddlDeviceType').html("");
-            $("#appendControl").html("");
-            var ddlDeviceType = $('#ddlDeviceType');
-            ddlDeviceType.append('<option value=""> Please Select Device Type </option>');
-            $("#btnSubmit").addClass('displaynone');
+            ClearDeviceType();
         }
     });
-
-    $('#btnSearch').on('click', function () {
-        var selectedDeviceTypeId = $("#ddlDeviceType").val();
-        if (selectedDeviceTypeId != "") {
-            BindDeviceListByTypeId(selectedDeviceTypeId);
-        }
-        else {
-            BindLutronDeviceTable(0);
-        }
-    })
-
+    
     $('#btnReferesh').on('click', function () {
         location.reload(true);
     })
+
+    $('.toggle-group').change(function () {
+        var selectedValue = $('#ddlDeviceType').val();
+        if (selectedValue != 0) {
+            if (selectedType.LtgState == selectedValue) {
+                SaveDeviceLightState(selectedValue, $(this).prop('checked'));
+            }
+        }
+    })
+
+
 });
 
+function BindDropDown() {
+    RangeSlider();
+    var ddlDeviceArea = $("#ddldeviceArea");
+    ddlDeviceArea.html("");
+    ddlDeviceArea.append('<option value=""> Please Select Device Area </option>');
 
-//Bind device table vase on devicetype selection.
-function BindLutronDeviceTable(deviceTypeId) {
-    $.get("api/LutronQuantum/GetDeviceList/" + deviceTypeId, function (deviceLst) {
-        var devices = deviceLst;
-    }).success(function (devices) {
-        BinddeviceTable(devices);
-
-        var ddlDeviceArea = $("#ddldeviceArea");
-        ddlDeviceArea.html("");
-        ddlDeviceArea.append('<option value=""> Please Select Device Area </option>');
-
-        ddlDeviceArea.append('<option value="' + 1 + '">Conference 4628A 1761035</option>');
-
-        $('#ddlDeviceType').html("");
-        var ddlDeviceType = $('#ddlDeviceType');
-        ddlDeviceType.append('<option value=""> Please Select Device Type </option>');
-    });
+    ddlDeviceArea.append('<option value="' + 1 + '">Conference 4628A 1761035</option>');
+    ddlDeviceArea.val(1);
+    $("#lightLevelSlidar").attr("disabled", false);
+    BindAllDropDownList();
 }
 
-//Data table for device list.
-function BinddeviceTable(deviceLst) {
-
-    if (deviceLst.length > 0) {
-        if (oTable != null) {
-            oTable.clear().destroy();
-        }
-        $("#deviceListShow").show();
-        $("#noDeviceLst").hide();
-        oTable = $('#deviceRecords').DataTable({
-            "data": deviceLst,
-            "scrollY": false,
-            "scrollX": true,
-            "columns": [
-                {
-                    "title": "Device Type", "data": "DeviceType", "sort": true, "Width": "30%"
-                },
-                {
-                    "title": "Device Name", "data": "DeviceName", "sort": true, "Width": "10%"
-                },
-
-                {
-                    "title": "Url", "data": "DeviceUrl", "sort": true, "Width": "20%", "render": function (data, type, row) {
-
-                        return "<a href='" + data + "'>" + data + "</a>";
-                    }
-                },
-                {
-                    "title": "ValueType", "data": "ValueType", "sort": false, "Width": "10%"
-                },
-                {
-                    "title": "Value", "data": "Value", "sort": false, "className": "txtalignright", "Width": "5%"
-                },
-                {
-                    "title": "Unit", "data": "Unit", "sort": false, "Width": "5%"
-                },
-
-                {
-                    "title": "Status", "data": "Status", "sort": true, "Width": "10%"
-                },
-                {
-                    "title": "Date", "data": "DateOfEntry", "sort": false, "Width": "10%", "render": function (data, type, row) {
-
-                        return GetDay(data);
-                    }
-
-                }
-            ]
-     
-
-        })
-    } else {
-        $("#deviceListShow").hide();
-        $("#noDeviceLst").show();
-    }
-
-
-}
-
-
-//Gets date in format dd/mm/yyyy
-function GetDay(date) {
-
-    var dt = new Date(date);
-    var date = dt.getDay() + "/" + dt.getMonth() + "/" + dt.getFullYear();
-    return date;
-}
-
-
-
-function BindDeviceType(deviceTypeId) {
-    $.get("api/LutronQuantum/GetDeviceType", function (data) {
-        var deviceType = data;
-    }).success(function (deviceType) {
-        var ddlDeviceType = "";
-        ddlDeviceType = $("#ddlDeviceType");
-        ddlDeviceType.html("");
-
-        // var ddlObject = $('#ddlObject');
-        ddlDeviceType.append('<option value=""> Please Select Device Type </option>');
-        $.each(deviceType, function (key, value) {
-            ddlDeviceType.append('<option value="' + value.DeviceTypeId + '">' + value.DeviceName + '</option>');
-        });
-    });
+function ClearDeviceType() {
+    $("#lightLevelSlidar").attr("disabled", true);
 }
 
 function BindDeviceListByTypeId(deviceTypeId) {
-    BindLutronDeviceTable(deviceTypeId);
+    //    BindLutronDeviceTable(deviceTypeId);
 }
 
+function GetCurrentLightState(deviceTypeId) {
+    $.get("api/LutronQuantum/GetCurrentValue/" + deviceTypeId, function (deviceLst) {
+        var devices = deviceLst;
+    }).success(function (devices) {
+        var currentStatus = devices.Value;
+        $('#inputLightState').prop('checked', true).change();
+    });
 
-function AppendTextBox(selectedid) {
-    var txthtml = "";
-    txthtml = "<label >Light Level</label><input type='text' class=' form-control' name='txtLightLEvel' id='txtLightLEvel" + selectedid + "'/>";
-    return txthtml;
 }
 
-function ValidatePage() {
-    var frmLutronDevice = $('#frmLutronDevice').validate(
-        {
-            rules: {
-                ddldeviceArea: {
-                    required: true
-                },
-                txtLightLEvel: {
-                    required: true
-                },
-                ddlDeviceType: {
-                    required: true
-                }
-            },
-            messages: {
-                ddldeviceArea: {
-                    required: "Please select device area."
-                },
-                txtLightLEvel: {
-                    required: "Please enter light level."
-                },
-                ddlDeviceType: {
-                    required: "Please select device type."
-                }
-            },
-            submitHandler: function (form) {               //
+function GetCurrentLightLevel(deviceTypeId) {
+    $.get("api/LutronQuantum/GetCurrentValue/" + deviceTypeId, function (currentVal) {
+        var devices = currentVal;
+    }).success(function (devices) {
+        var currentstatus = devices.Value;
+        $('input[type="range"]').val(currentstatus).change();
+        $(".range-slider__value").html(currentstatus);
+    });
+};
 
-                SaveDeviceProperty();
+function GetDeviceSceneList() {
+    return $.get("api/LutronQuantum/GetSceneRangeList");
+    //ValidatePage();
+}
 
-            }
+function BindAllDropDownList() {
+    $.when(GetDeviceSceneList(), GetAllDeviceDetail()).then(function (devicesSceneLst, deviceDetail) {
+        
+        var scenelist = devicesSceneLst[0];
+        var deviceInfo = deviceDetail[0];
+        var ddlSceneType = "";
+        ddlSceneType = $("#ddlSceneType");
+        ddlSceneType.html("");
+        ddlSceneType.append('<option value=""> Please Select Light Scense</option>');
+        $.each(scenelist, function (key, value) {
+            ddlSceneType.append('<option value="' + value.SceneId + '">' + value.SceneName + '</option>');
         });
+
+        var lightStatus = deviceInfo.LightState;
+        $('#inputLightState').prop('checked', lightStatus).change();
+
+
+        var lightLevel = deviceInfo.LightLevel;
+        $('input[type="range"]').val(lightLevel).change();
+        $(".range-slider__value").html(lightLevel);
+        
+        $("#lightLevel").css({ "color": "hsl(43," + lightLevel + "%," + "57%)" })
+        //$("#lightLevel").css({ "color": "hsl(22," + lightLevel + "%," + "51%)" })
+        $("#ddlSceneType").val(deviceInfo.LightSceneValue);
+    });
 }
 
+function SetDeviceValue(deviceInfo) {
+    var lightStatus = deviceInfo.LightState;
+    $('#inputLightState').prop('checked', lightStatus).change();
+    
+
+    var currentstatus = deviceInfo.LightLevel;
+    $('input[type="range"]').val(currentstatus);
+    $(".range-slider__value").html(currentstatus);
+
+    $("#ddlSceneType").val(deviceInfo.LightSceneValue);
+    var lightLevel = deviceInfo.LightLevel;
+    $("#lightLevel").css({ "color": "hsl(43," + lightLevel + "%," + "57%)" })
+    //$("#lightLevel").css({ "color": "hsl(22," + lightLevel + "%," + "51%)" })
+    //$("#lightLevel").css({ "color": "hsl(60," + lightLevel + "%," + "50%)" })
+    $("#loader").addClass('displaynone');
+}
+
+function GetAllDeviceDetail() {
+    return $.get("api/LutronQuantum/GetsCurrentDeviceLevel");
+}
 
 function SaveDeviceProperty() {
     var currentDeviceType = $('#ddlDeviceType').val();
-    if (selectedType.LtgLevel == currentDeviceType)
-    {
-        SaveDeviceLightLevel(selectedType.LtgLevel);
+    if (selectedType.Scene == currentDeviceType) {
+        SaveDeviceScene();
     }
 }
 
-function SaveDeviceLightLevel(id) {
-    var lightLevel = $("#txtLightLEvel" + id).val();
+function SaveDeviceLightLevel(id, value) {
+    var lightLevel = value;
     var deviceObj = {
         LightLevel: lightLevel
     }
     $.post("api/LutronQuantum/SaveLightLevel", deviceObj, function () {
 
     }).success(function () {
-        location.reload(true);
+        
+        GetDeviceLevelDetail();
+        
     });
 }
+
+function GetDeviceLevelDetail() {
+    $.get("api/LutronQuantum/GetsCurrentDeviceLevel", function (data) {
+        var deviceInfo = data;
+    }).success(function (deviceInfo) {
+        SetDeviceValue(deviceInfo);
+
+    });
+}
+
+function SaveDeviceLightState(id, currentStatus) {
+    //var lightLevel = $("#txtLightLEvel" + id).val();
+    var deviceObj = {
+        DeviceId: id,
+        CurrentStatus: currentStatus
+    }
+    $.post("api/LutronQuantum/SaveLightState", deviceObj, function () {
+
+    }).success(function () {
+        //location.reload(true);
+        GetDeviceLevelDetail();
+    });
+}
+
+function SaveDeviceScene() {
+    var selectedSceneValue = $('#ddlSceneType').val();
+    var sceneObj = {
+        SceneId: selectedSceneValue
+    }
+    $.post("api/LutronQuantum/SaveDeviceScene", sceneObj, function () {
+
+    }).success(function () {
+        // location.reload(true);
+        // GetCurrentLightState(selectedType.LtgLevel);
+        
+        GetDeviceLevelDetail();
+    });
+}
+
+var RangeSlider = function () {
+    var slider = $('.range-slider'),
+        range = $('.range-slider__range'),
+        value = $('.range-slider__value');
+
+    slider.each(function () {
+
+        value.each(function () {
+            var value = $(this).prev().attr('value');
+            $(this).html(value);
+
+        });
+
+        range.on('input', function () {
+            
+            $(this).next(value).html(this.value);
+            //$("#lightLevel").css({ "color": "hsl(60," + this.value + "%," + "50%)" })
+            $("#lightLevel").css({ "color": "hsl(43," + this.value + "%," + "57%)" })
+        });
+
+        range.on("change", function (event, ui) {
+            $("#loader").removeClass('displaynone');
+            var selectedValue = this.value;
+            
+            SaveDeviceLightLevel(selectedType.LtgLevel, selectedValue);
+
+        });
+    });
+};

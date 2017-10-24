@@ -4,10 +4,15 @@
 }
 <head>
     <link href="~/Content/font-awesome.min.css" rel="stylesheet" />
-    <link href="~/Content/CSS/bootstrap.css" rel="stylesheet" />
-
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-slider.min.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-toggle.css" rel="stylesheet" />
+    <link href="~/Content/RangeSlidar.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-slider.min.css" rel="stylesheet" />
     <link href="~/Content/Site.css" rel="stylesheet" />
     <link href="~/Content/datatable.css" rel="stylesheet" />
+    <link href="~/Content/Loader.css" rel="stylesheet" />
 </head>
 
 <style>
@@ -34,57 +39,78 @@
     .floatright {
         float: right;
     }
-    .displaynone{
-        display:none;
+
+    .displaynone {
+        display: none;
+    }
+
+    .bccolorwhite {
+        background-color: white;
+    }
+
+    .m-l-5 {
+        margin-left: 5px;
+    }
+
+    .p-b-6 {
+        padding-bottom: 6px;
     }
 </style>
 
 <html>
 
 <body>
-    <h2>Lutron Quantum</h2>
-
-    <div class="col-sm-12">
-        <form data-toggle="validator" class="col-sm-6" role="form" id="frmLutronDevice">
-            <h4>Search Device </h4>
 
 
-            <hr />
-            <div class="form-group">
-                <label for="ddldeviceArea">Device Area</label>
-                <select class="form-control" name="ddldeviceArea" id="ddldeviceArea" required></select>
+    <div class="row">
+
+        <div class="panel panel-default">
+            <div class="panel-heading"><h2>Lutron Quantum</h2></div>
+            <div class="panel-body">
+                <div class="col-sm-8">
+                    <form data-toggle="validator" role="form" id="frmLutronDevice" class="p-b-6">
+                        <div class="form-group row">
+                            <label for="colFormLabelSm" class="col-sm-3 col-form-label col-form-label-sm">Device</label>
+                            <div class="col-sm-9">
+                                <select class="form-control" id="ddldeviceArea" name="ddldeviceArea" required></select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="colFormLabelLg" class="col-sm-3 col-form-label col-form-label-lg">Lighting Scene</label>
+                            <div class="col-sm-9">
+                                <select class="form-control" id="ddlSceneType" name="ddlSceneType" required></select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="colFormLabel" class="col-sm-3 col-form-label">Lighting Level</label>
+                            <div class="range-slider">
+                                <input class="range-slider__range" type="range" id="lightLevelSlidar" value="0" min="0" max="100" disabled="disabled">
+                                <span class="range-slider__value">0</span>
+                            </div>
+
+                        </div>
+                        <div class="form-group row">
+                            <label for="colFormLabelLg" class="col-sm-3 col-form-label col-form-label-lg">Lighting State</label>
+                            <div class="col-sm-9">
+                                <input type="checkbox" data-toggle="toggle" id="inputLightState">
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+                <div class="col-sm-4">
+                    <i class="fa fa-10x fa-lightbulb-o" id="lightLevel" aria-hidden="false"></i>
+                </div>
+                <div class="col-sm-4">
+                    <button type="button" class="btn-sm btnsearchstyle" id="btnReferesh">
+                        <i class="fa fa-refresh" aria-hidden="true">&nbsp; Refresh</i>
+                    </button>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="ddlDeviceType">Device Type</label>
-                <select class="form-control" id="ddlDeviceType" name="ddlDeviceType" required></select>
-            </div>
-            <div class="form-group" id="appendControl">
-
-            </div>
-            <button type="submit" class="btn-sm btnsearchstyle displaynone" id="btnSubmit" >
-                Submit
-            </button>
-            <button type="button" class="btn-sm btnsearchstyle" id="btnSearch">
-                <i class="fa  fa-search"> &nbsp;Search</i>
-            </button>
-            <button type="button" class="btn-sm btnsearchstyle" id="btnReferesh">
-                <i class="fa fa-refresh" aria-hidden="true">&nbsp; Refresh</i>
-            </button>
-         
-        </form>
-
-    </div>
-    <div class="col-sm-12" style="margin-top:30px">
-        <h4>Device Detail </h4>
-        <hr />
-        <div id="deviceListShow">
-            <table id="deviceRecords" class="cell-border" cellspacing="0"></table>
         </div>
-        <div id="noDeviceLst">
-            <h4>No Device Detail.</h4>
-        </div>
     </div>
 
+    <div class="loading displaynone" id="loader"></div>
 
 </body>
 
@@ -95,5 +121,6 @@
 <script src="~/Scripts/moment.js"></script>
 <script src="~/Scripts/bootstrap.min.js"></script>
 <script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/bootstrap-toggle.min.js"></script>
 <script src="~/Scripts/datatable.min.js"></script>
 <script src="~/Content/Script/Pages/LutronQuantum.js"></script>

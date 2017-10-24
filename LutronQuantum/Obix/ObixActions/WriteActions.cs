@@ -16,7 +16,7 @@ namespace Obix_JACE_V1.Obix.ObixActions
         /// Save light level in obix device.
         /// </summary>
         /// <param name="deviceObj">Passes light level</param>
-        public static void SaveLightLevel(DeviceEntity deviceObj)
+        public static void WriteLightLevel(DeviceEntity deviceObj)
         {
             var obixClient = obixClientInit.oBixClient;
             var lightLevelUrl = ConfigurationManager.AppSettings["ObixMasterUrl"].ToString() +
@@ -27,6 +27,31 @@ namespace Obix_JACE_V1.Obix.ObixActions
             element.SetAttributeValue("unit", "obix:units/percent");
             obixClient.InvokeUriXml(new Uri(lightLevelUrl), element);
 
+        }
+
+        public static void WriteLightState(DeviceEntity deviceObj)
+        {
+            var obixClient = obixClientInit.oBixClient;
+            var lightLevelUrl = ConfigurationManager.AppSettings["ObixMasterUrl"].ToString() +
+            ConfigurationManager.AppSettings["LightState"].ToString();
+            XElement element = new XElement("bool");
+            element.SetAttributeValue("val", deviceObj.CurrentStatus ? false : true);
+            element.SetAttributeValue("is", "/obix/def/baja:StatusBoolean");
+            element.SetAttributeValue("status", "overridden");
+            // element.SetAttributeValue("range", "LtgState/~bool");
+            obixClient.InvokeUriXml(new Uri(lightLevelUrl), element);
+        }
+
+        public static void WriteDeviceScene(SceneEntity deviceObj)
+        {
+            var obixClient = obixClientInit.oBixClient;
+            var lightSceneUrl = ConfigurationManager.AppSettings["ObixMasterUrl"].ToString() +
+            ConfigurationManager.AppSettings["LightScene"].ToString();
+            XElement element = new XElement("enum");
+            element.SetAttributeValue("val", deviceObj.SceneId);
+            element.SetAttributeValue("is", "/obix/def/baja:StatusEnum");
+            element.SetAttributeValue("status", "overridden");
+            obixClient.InvokeUriXml(new Uri(lightSceneUrl), element);
         }
     }
 }
