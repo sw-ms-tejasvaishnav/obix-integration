@@ -98,7 +98,11 @@ function BindAllDropDownList() {
         ddlSceneType.html("");
         ddlSceneType.append('<option value=""> Please Select Light Scense</option>');
         $.each(scenelist, function (key, value) {
-            ddlSceneType.append('<option value="' + value.SceneId + '">' + value.SceneName + '</option>');
+            if (value.SceneId == 9) {
+                ddlSceneType.append('<option value="' + value.SceneId + '" disabled>' + value.SceneName + '</option>');
+            } else {
+                ddlSceneType.append('<option value="' + value.SceneId + '">' + value.SceneName + '</option>');
+            }
         });
 
         var lightStatus = deviceInfo.LightState;

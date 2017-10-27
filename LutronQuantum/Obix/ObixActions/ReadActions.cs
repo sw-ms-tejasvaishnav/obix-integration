@@ -42,6 +42,7 @@ namespace LutronQuantum.Obix.ObixActions
                 if (node is XElement)
                 {
                     IEnumerable<XNode> nodeList = node.Document.DescendantNodes();
+                  //  var ids = node.Document.Elements("ref").Select(item => item.Element("id").Value);
                     foreach (XNode nodes in nodeList.ToList())
                     {
                         XElement element = nodes as XElement;
@@ -609,7 +610,7 @@ namespace LutronQuantum.Obix.ObixActions
         }
 
 
-        public static LigtingModel GetCurrentLightState( int deviceType)
+        public static LigtingModel GetCurrentLightState(int deviceType)
         {
             var devicedetail = (from bd in _dbcontext.ObixDevices
                                 where bd.isActive == true
@@ -639,9 +640,9 @@ namespace LutronQuantum.Obix.ObixActions
                 LightScene = _dbcontext.ObixDevices.Where(y => y.object_instance == (int)DeviceEnum.Scene && y.isActive == true).Select(y => y.Value).FirstOrDefault(),
                 LightState = _dbcontext.ObixDevices.Where(y => y.object_instance == (int)DeviceEnum.LightState && y.isActive == true).Select(y => y.Value).FirstOrDefault()
             };
-            if(devicedetail!= null)
-            {                 
-               devicedetail.LightSceneValue = (int)Enum.Parse(typeof(LightSceneEnum), devicedetail.LightScene.Replace("$20","").Replace("20", ""));
+            if (devicedetail != null)
+            {
+                devicedetail.LightSceneValue = (int)Enum.Parse(typeof(LightSceneEnum), devicedetail.LightScene.Replace("$20", "").Replace("20", ""));
 
 
             }
