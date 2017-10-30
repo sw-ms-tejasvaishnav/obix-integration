@@ -8,10 +8,12 @@ using Obix_JACE_V1.Obix;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Xml;
 using System.Xml.Linq;
+
 
 namespace LutronQuantum.Obix.ObixActions
 {
@@ -26,123 +28,58 @@ namespace LutronQuantum.Obix.ObixActions
         public static void SaveCurrentLutronQuatumDetail()
         {
             var obixClient = obixClientInit.oBixClient;
-            ObixResult<XElement> LobbyUriResult = obixClient.ReadUriXml(obixClient.LobbyUri);
-            ObixResult<XElement> WatchUriResult = obixClient.ReadUriXml(obixClient.WatchUri);
-            ObixResult<XElement> AboutUriResult = obixClient.ReadUriXml(obixClient.AboutUri);
-            ObixResult<XElement> BatchUriResult = obixClient.ReadUriXml(obixClient.BatchUri);
-
 
             string deviceUrl = ConfigurationManager.AppSettings["ObixMasterUrl"].ToString() +
                 ConfigurationManager.AppSettings["DeviceData"].ToString();
 
             var xmlsineWaveRollupResult = obixClient.ReadUriXml(new Uri(deviceUrl));
 
-            foreach (XNode node in xmlsineWaveRollupResult.Result.Document.Nodes())
+            var conferenceNodes = xmlsineWaveRollupResult.Result.Document.Descendants().
+                Where(d => d.FirstAttribute.Value == DeviceNameType.Conference4628A1761035.Replace(" ", "$20")).FirstOrDefault();
+            if (conferenceNodes != null)
             {
-                if (node is XElement)
+                XElement element = conferenceNodes as XElement;
+                if (element != null)
                 {
-                    IEnumerable<XNode> nodeList = node.Document.DescendantNodes();
-                  //  var ids = node.Document.Elements("ref").Select(item => item.Element("id").Value);
-                    foreach (XNode nodes in nodeList.ToList())
-                    {
-                        XElement element = nodes as XElement;
-                        if (element == null || element.Attribute("displayName") == null
-                            ? false : element.Attribute("displayName").Value == DeviceNameType.Conference4628A1761035)
-                        {
-                            var lutronQuantumDevicesUrl = deviceUrl + "/" + element.FirstAttribute.NextAttribute.Value;
-                            var allConferenceDeviceResult = obixClientInit.oBixClient.ReadUriXml(new Uri(lutronQuantumDevicesUrl));
-                            if (allConferenceDeviceResult.ResultSucceeded == true)
-                            {
-                                IEnumerable<XNode> conferenceNodeLst = allConferenceDeviceResult.Result.Document.DescendantNodes();
-                                foreach (XNode conferenceNode in conferenceNodeLst.ToList())
-                                {
-                                    XElement celement = conferenceNode as XElement;
-                                    if (celement == null || celement.Attribute("displayName") == null
-                                        ? false : celement.Attribute("displayName").Value == DeviceNameType.Points)
-                                    {
-                                        var lutronQuantumDevicesPointsUrl = lutronQuantumDevicesUrl + celement.FirstAttribute.NextAttribute.Value;
-                                        var allConferenceDevicePointsResult = obixClientInit.oBixClient.ReadUriXml(new Uri(lutronQuantumDevicesPointsUrl));
-                                        if (allConferenceDevicePointsResult.ResultSucceeded == true)
-                                        {
-                                            IEnumerable<XNode> conferenceDevicePointsLst = allConferenceDevicePointsResult.Result.Document.DescendantNodes();
-                                            foreach (XNode pointsNode in conferenceDevicePointsLst.ToList())
-                                            {
-                                                XElement pointelement = pointsNode as XElement;
-                                                if (pointelement == null || pointelement.FirstAttribute.Value == null
-                                                    ? false : pointelement.FirstAttribute.Value == DeviceNameType.Basic)
-                                                {
-                                                    var basicPointsUrl = lutronQuantumDevicesPointsUrl + pointelement.FirstAttribute.NextAttribute.Value;
-                                                    var basicPointsResult = obixClientInit.oBixClient.ReadUriXml(new Uri(basicPointsUrl));
-                                                    if (basicPointsResult.ResultSucceeded == true)
-                                                    {
-                                                        IEnumerable<XNode> pointsBasicNodeLst = basicPointsResult.Result.Document.DescendantNodes();
-                                                        foreach (var basicNode in pointsBasicNodeLst)
-                                                        {
-                                                            XElement basicNodeElement = basicNode as XElement;
-                                                            if (basicNodeElement == null || basicNodeElement.FirstAttribute.Value == null
-                                                              ? false : basicNodeElement.FirstAttribute.Value == DeviceNameType.LightLevel)
-                                                            {
-                                                                var lightLevelUrl = basicPointsUrl + basicNodeElement.Attribute("href").Value;
-                                                                var lightLevelXmlData = obixClientInit.oBixClient.ReadUriXml(new Uri(lightLevelUrl));
-                                                                if (lightLevelXmlData.ResultSucceeded == true)
-                                                                {
-                                                                    SaveCurrentLightLevel(lightLevelXmlData, DeviceNameType.Conference4628A1761035);
-                                                                }
-                                                            }
-                                                            else if (basicNodeElement == null || basicNodeElement.FirstAttribute.Value == null
-                                                            ? false : basicNodeElement.FirstAttribute.Value == DeviceNameType.LightState)
-                                                            {
-                                                                var lightStateUrl = basicPointsUrl + basicNodeElement.Attribute("href").Value;
-                                                                var lightStateXmlData = obixClientInit.oBixClient.ReadUriXml(new Uri(lightStateUrl));
-                                                                if (lightStateXmlData.ResultSucceeded == true)
-                                                                {
-                                                                    SaveCurrentLightState(lightStateXmlData, DeviceNameType.Conference4628A1761035);
-                                                                }
-                                                            }
-                                                            else if (basicNodeElement == null || basicNodeElement.FirstAttribute.Value == null
-                                                             ? false : basicNodeElement.FirstAttribute.Value == DeviceNameType.Scene)
-                                                            {
-                                                                var lightSceneUrl = basicPointsUrl + basicNodeElement.Attribute("href").Value;
-                                                                var lightSceneXmlData = obixClientInit.oBixClient.ReadUriXml(new Uri(lightSceneUrl));
-                                                                if (lightSceneXmlData.ResultSucceeded == true)
-                                                                {
-                                                                    SaveCurrentScene(lightSceneXmlData, DeviceNameType.Conference4628A1761035);
-                                                                }
-                                                            }
-                                                            else if (basicNodeElement == null || basicNodeElement.FirstAttribute.Value == null
-                                                             ? false : basicNodeElement.FirstAttribute.Value == DeviceNameType.OccupancyState)
-                                                            {
-                                                                var lightOccupancyStateUrl = basicPointsUrl + basicNodeElement.Attribute("href").Value;
-                                                                var lightOccupancyStateXmlData = obixClientInit.oBixClient.ReadUriXml(new Uri(lightOccupancyStateUrl));
-                                                                if (lightOccupancyStateXmlData.ResultSucceeded == true)
-                                                                {
-                                                                    SaveCurrentOccupancyState(lightOccupancyStateXmlData, DeviceNameType.Conference4628A1761035);
-                                                                }
-                                                            }
-                                                            else if (basicNodeElement == null || basicNodeElement.FirstAttribute.Value == null
-                                                             ? false : basicNodeElement.FirstAttribute.Value == DeviceNameType.LtgPowerUsed)
-                                                            {
-                                                                var lightPowerUsedUrl = basicPointsUrl + basicNodeElement.Attribute("href").Value;
-                                                                var lightPowerUsedXmlData = obixClientInit.oBixClient.ReadUriXml(new Uri(lightPowerUsedUrl));
-                                                                if (lightPowerUsedXmlData.ResultSucceeded == true)
-                                                                {
-                                                                    SaveCurrentLightPowerUsed(lightPowerUsedXmlData, DeviceNameType.Conference4628A1761035);
-                                                                }
-                                                            }
-                                                            else if (basicNodeElement == null || basicNodeElement.FirstAttribute.Value == null
-                                                             ? false : basicNodeElement.FirstAttribute.Value == DeviceNameType.DaylightSensor)
-                                                            {
-                                                                var daylightSensorUsedUrl = basicPointsUrl + basicNodeElement.Attribute("href").Value;
-                                                                var daylightSensorUsedXmlData = obixClientInit.oBixClient.ReadUriXml(new Uri(daylightSensorUsedUrl));
-                                                                if (daylightSensorUsedXmlData.ResultSucceeded == true)
-                                                                {
-                                                                    SaveCurrentDaylightSensor(daylightSensorUsedXmlData, DeviceNameType.Conference4628A1761035);
-                                                                }
-                                                            }
+                    var lutronQuantumDevicesUrl = deviceUrl + "/" + element.FirstAttribute.NextAttribute.Value;
+                    var allConferenceDeviceResult = obixClientInit.oBixClient.ReadUriXml(new Uri(lutronQuantumDevicesUrl));
 
-                                                        }
-                                                    }
-                                                }
+                    if (allConferenceDeviceResult.ResultSucceeded == true)
+                    {
+                        var pointNodes = allConferenceDeviceResult.Result.Document.Descendants().
+                            Where(d => d.FirstAttribute.Value == DeviceNameType.ObixPointName).FirstOrDefault();
+                        if (pointNodes != null)
+                        {
+                            XElement pelement = pointNodes as XElement;
+                            if (pelement != null)
+                            {
+                                var lutronQuantumDevicesPointsUrl = lutronQuantumDevicesUrl + pelement.FirstAttribute.NextAttribute.Value;
+                                var allConferenceDevicePointsResult = obixClientInit.oBixClient.ReadUriXml(new Uri(lutronQuantumDevicesPointsUrl));
+                                if (allConferenceDevicePointsResult.ResultSucceeded == true)
+                                {
+                                    var basicNodes = allConferenceDevicePointsResult.Result.Document.Descendants().
+                                                     Where(d => d.FirstAttribute.Value == DeviceNameType.Basic).FirstOrDefault();
+                                    if (basicNodes != null)
+                                    {
+                                        XElement basicElement = basicNodes as XElement;
+                                        if (basicElement != null)
+                                        {
+                                            var basicPointsUrl = lutronQuantumDevicesPointsUrl + basicElement.FirstAttribute.NextAttribute.Value;
+                                            var basicPointsResult = obixClientInit.oBixClient.ReadUriXml(new Uri(basicPointsUrl));
+                                            if (basicPointsResult.ResultSucceeded == true)
+                                            {
+                                                SaveLightLevelObix(basicPointsResult, basicPointsUrl);
+
+                                                SaveLightStateObix(basicPointsResult, basicPointsUrl);
+
+                                                SaveLightSceneObix(basicPointsResult, basicPointsUrl);
+
+                                                SaveLightOccupancyStateObix(basicPointsResult, basicPointsUrl);
+
+                                                SaveLightPowerUsedObix(basicPointsResult, basicPointsUrl);
+
+                                                SaveDayLightSensorObix(basicPointsResult, basicPointsUrl);
+
                                             }
                                         }
                                     }
@@ -152,10 +89,11 @@ namespace LutronQuantum.Obix.ObixActions
                     }
                 }
             }
-
         }
 
+        #region SaveUpdateRecordDatabase
 
+        
         /// <summary>
         /// Saves current light level.
         /// </summary>
@@ -440,165 +378,144 @@ namespace LutronQuantum.Obix.ObixActions
             }
         }
 
+        #endregion
+
+        #region ReadAndUpdateUsingObixMethod
 
 
         /// <summary>
-        /// Gets device list from data base.
+        /// Read and save updated light level value in database.
         /// </summary>
-        /// <param name="deviceType">Passes selected device type.4</param>
-        /// <returns>Selected device type resule from data base.</returns>
-        public static List<LigtingModel> GetDeviceList(int deviceType)
+        /// <param name="basicXml">Passes xml object.</param>
+        /// <param name="basicPointsUrl">Xml url for nodes list.</param>
+        private static void SaveLightLevelObix(ObixResult<XElement> basicXml, string basicPointsUrl)
         {
-            var devicedetail = (from bd in _dbcontext.ObixDevices
-                                where bd.isActive == true && deviceType == 0 ? true : bd.object_instance == deviceType
-                                select new LigtingModel
-                                {
-                                    DeviceName = bd.DeviceName,
-                                    DeviceType = bd.DeviceType,
-                                    DeviceUrl = bd.DeviceUrl,
-                                    Unit = bd.Unit,
-                                    DateOfEntry = bd.DateOfEntry,
-                                    Status = bd.Status,
-                                    ValueType = bd.ValueType,
-                                    Value = bd.Value
-                                }).ToList();
-
-            return devicedetail;
-        }
-
-        /// <summary>
-        /// Gets device type from device.
-        /// </summary>
-        /// <returns>Device type list base on device area.</returns>
-        public static List<DeviceType> GetDeviceType()
-        {
-            var deviceTypeLst = new List<DeviceType>();
-            string deviceUrl = ConfigurationManager.AppSettings["ObixMasterUrl"].ToString() +
-               ConfigurationManager.AppSettings["DeviceData"].ToString();
-
-            var xmlsineWaveRollupResult = obixClientInit.oBixClient.ReadUriXml(new Uri(deviceUrl));
-
-            foreach (XNode node in xmlsineWaveRollupResult.Result.Document.Nodes())
+            var lightLevel = basicXml.Result.Document.Descendants().
+                             Where(d => d.FirstAttribute.Value == DeviceNameType.LightLevel).FirstOrDefault();
+            if (lightLevel != null)
             {
-                if (node is XElement)
+                XElement basicNodeElement = lightLevel as XElement;
+                var lightLevelUrl = basicPointsUrl + basicNodeElement.Attribute("href").Value;
+                var lightLevelXmlData = obixClientInit.oBixClient.ReadUriXml(new Uri(lightLevelUrl));
+                if (lightLevelXmlData.ResultSucceeded == true)
                 {
-                    IEnumerable<XNode> nodeList = node.Document.DescendantNodes();
-                    foreach (XNode nodes in nodeList.ToList())
-                    {
-                        XElement element = nodes as XElement;
-                        if (element == null || element.Attribute("displayName") == null
-                            ? false : element.Attribute("displayName").Value == DeviceNameType.Conference4628A1761035)
-                        {
-                            var lutronQuantumDevicesUrl = deviceUrl + "/" + element.FirstAttribute.NextAttribute.Value;
-                            var allConferenceDeviceResult = obixClientInit.oBixClient.ReadUriXml(new Uri(lutronQuantumDevicesUrl));
-                            if (allConferenceDeviceResult.ResultSucceeded == true)
-                            {
-                                IEnumerable<XNode> conferenceNodeLst = allConferenceDeviceResult.Result.Document.DescendantNodes();
-                                foreach (XNode conferenceNode in conferenceNodeLst.ToList())
-                                {
-                                    XElement celement = conferenceNode as XElement;
-                                    if (celement == null || celement.Attribute("displayName") == null
-                                        ? false : celement.Attribute("displayName").Value == DeviceNameType.Points)
-                                    {
-                                        var lutronQuantumDevicesPointsUrl = lutronQuantumDevicesUrl + celement.FirstAttribute.NextAttribute.Value;
-                                        var allConferenceDevicePointsResult = obixClientInit.oBixClient.ReadUriXml(new Uri(lutronQuantumDevicesPointsUrl));
-                                        if (allConferenceDevicePointsResult.ResultSucceeded == true)
-                                        {
-                                            IEnumerable<XNode> conferenceDevicePointsLst = allConferenceDevicePointsResult.Result.Document.DescendantNodes();
-                                            foreach (XNode pointsNode in conferenceDevicePointsLst.ToList())
-                                            {
-                                                XElement pointelement = pointsNode as XElement;
-                                                if (pointelement == null || pointelement.FirstAttribute.Value == null
-                                                    ? false : pointelement.FirstAttribute.Value == DeviceNameType.Basic)
-                                                {
-                                                    var basicPointsUrl = lutronQuantumDevicesPointsUrl + pointelement.FirstAttribute.NextAttribute.Value;
-                                                    var basicPointsResult = obixClientInit.oBixClient.ReadUriXml(new Uri(basicPointsUrl));
-                                                    if (basicPointsResult.ResultSucceeded == true)
-                                                    {
-                                                        IEnumerable<XNode> pointsBasicNodeLst = basicPointsResult.Result.Document.DescendantNodes();
-                                                        foreach (var basicNode in pointsBasicNodeLst)
-                                                        {
-                                                            XElement basicNodeElement = basicNode as XElement;
-                                                            if (basicNodeElement == null || basicNodeElement.FirstAttribute.Value == null
-                                                              ? false : basicNodeElement.FirstAttribute.Value == DeviceNameType.LightLevel)
-                                                            {
-                                                                var deviceType = new DeviceType
-                                                                {
-                                                                    DeviceName = basicNodeElement.FirstAttribute.Value,
-                                                                    DeviceTypeId = (int)DeviceEnum.LightLevel
-                                                                };
-                                                                deviceTypeLst.Add(deviceType);
-                                                            }
-                                                            else if (basicNodeElement == null || basicNodeElement.FirstAttribute.Value == null
-                                                             ? false : basicNodeElement.FirstAttribute.Value == DeviceNameType.LightState)
-                                                            {
-                                                                var deviceType = new DeviceType
-                                                                {
-                                                                    DeviceName = basicNodeElement.FirstAttribute.Value,
-                                                                    DeviceTypeId = (int)DeviceEnum.LightState
-                                                                };
-                                                                deviceTypeLst.Add(deviceType);
-                                                            }
-                                                            else if (basicNodeElement == null || basicNodeElement.FirstAttribute.Value == null
-                                                             ? false : basicNodeElement.FirstAttribute.Value == DeviceNameType.Scene)
-                                                            {
-                                                                var deviceType = new DeviceType
-                                                                {
-                                                                    DeviceName = basicNodeElement.FirstAttribute.Value,
-                                                                    DeviceTypeId = (int)DeviceEnum.Scene
-                                                                };
-                                                                deviceTypeLst.Add(deviceType);
-                                                            }
-                                                            else if (basicNodeElement == null || basicNodeElement.FirstAttribute.Value == null
-                                                             ? false : basicNodeElement.FirstAttribute.Value == DeviceNameType.OccupancyState)
-                                                            {
-                                                                var deviceType = new DeviceType
-                                                                {
-                                                                    DeviceName = basicNodeElement.FirstAttribute.Value,
-                                                                    DeviceTypeId = (int)DeviceEnum.OccupancyState
-                                                                };
-                                                                deviceTypeLst.Add(deviceType);
-                                                            }
-                                                            else if (basicNodeElement == null || basicNodeElement.FirstAttribute.Value == null
-                                                             ? false : basicNodeElement.FirstAttribute.Value == DeviceNameType.LtgPowerUsed)
-                                                            {
-                                                                var deviceType = new DeviceType
-                                                                {
-                                                                    DeviceName = basicNodeElement.FirstAttribute.Value,
-                                                                    DeviceTypeId = (int)DeviceEnum.LtgPowerUsed
-                                                                };
-                                                                deviceTypeLst.Add(deviceType);
-                                                            }
-                                                            else if (basicNodeElement == null || basicNodeElement.FirstAttribute.Value == null
-                                                             ? false : basicNodeElement.FirstAttribute.Value == DeviceNameType.DaylightSensor)
-                                                            {
-                                                                var deviceType = new DeviceType
-                                                                {
-                                                                    DeviceName = basicNodeElement.FirstAttribute.Value,
-                                                                    DeviceTypeId = (int)DeviceEnum.DaylightSensor
-                                                                };
-                                                                deviceTypeLst.Add(deviceType);
-                                                            }
-
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    SaveCurrentLightLevel(lightLevelXmlData, DeviceNameType.Conference4628A1761035);
                 }
             }
-
-
-            return deviceTypeLst;
-
         }
 
+        /// <summary>
+        /// Read and save updated light state value in database.
+        /// </summary>
+        /// <param name="basicXml">Passes xml object.</param>
+        /// <param name="basicPointsUrl">Xml url for nodes list.</param>
+        private static void SaveLightStateObix(ObixResult<XElement> basicXml, string basicPointsUrl)
+        {
+            var lightState = basicXml.Result.Document.Descendants().
+                             Where(d => d.FirstAttribute.Value == DeviceNameType.LightState).FirstOrDefault();
+            if (lightState != null)
+            {
+                XElement basicNodeElement = lightState as XElement;
+                var lightStateUrl = basicPointsUrl + basicNodeElement.Attribute("href").Value;
+                var lightStateXmlData = obixClientInit.oBixClient.ReadUriXml(new Uri(lightStateUrl));
+                if (lightStateXmlData.ResultSucceeded == true)
+                {
+                    SaveCurrentLightState(lightStateXmlData, DeviceNameType.Conference4628A1761035);
+                }
+            }
+        }
 
+        /// <summary>
+        /// Read and save updated light scene value in database.
+        /// </summary>
+        /// <param name="basicXml">Passes xml object.</param>
+        /// <param name="basicPointsUrl">Xml url for nodes list.</param>
+        private static void SaveLightSceneObix(ObixResult<XElement> basicPointsResult, string basicPointsUrl)
+        {
+            var lightScene = basicPointsResult.Result.Document.Descendants().
+                                                 Where(d => d.FirstAttribute.Value == DeviceNameType.Scene).FirstOrDefault();
+            if (lightScene != null)
+            {
+                XElement basicNodeElement = lightScene as XElement;
+                var lightSceneUrl = basicPointsUrl + basicNodeElement.Attribute("href").Value;
+                var lightSceneXmlData = obixClientInit.oBixClient.ReadUriXml(new Uri(lightSceneUrl));
+                if (lightSceneXmlData.ResultSucceeded == true)
+                {
+                    SaveCurrentScene(lightSceneXmlData, DeviceNameType.Conference4628A1761035);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Read and save updated light scene value in database.
+        /// </summary>
+        /// <param name="basicXml">Passes xml object.</param>
+        /// <param name="basicPointsUrl">Xml url for nodes list.</param>
+        private static void SaveLightOccupancyStateObix(ObixResult<XElement> basicPointsResult, string basicPointsUrl)
+        {
+            var lightOccupancyState = basicPointsResult.Result.Document.Descendants().
+                 Where(d => d.FirstAttribute.Value == DeviceNameType.OccupancyState).FirstOrDefault();
+            if (lightOccupancyState != null)
+            {
+                XElement basicNodeElement = lightOccupancyState as XElement;
+                var lightOccupancyStateUrl = basicPointsUrl + basicNodeElement.Attribute("href").Value;
+                var lightOccupancyStateXmlData = obixClientInit.oBixClient.ReadUriXml(new Uri(lightOccupancyStateUrl));
+                if (lightOccupancyStateXmlData.ResultSucceeded == true)
+                {
+                    SaveCurrentOccupancyState(lightOccupancyStateXmlData, DeviceNameType.Conference4628A1761035);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Read and save updated light power used in database.
+        /// </summary>
+        /// <param name="basicXml">Passes xml object.</param>
+        /// <param name="basicPointsUrl">Xml url for nodes list.</param>
+        private static void SaveLightPowerUsedObix(ObixResult<XElement> basicPointsResult, string basicPointsUrl)
+        {
+            var lightLtgPowerUsed = basicPointsResult.Result.Document.Descendants().
+                                              Where(d => d.FirstAttribute.Value == DeviceNameType.LtgPowerUsed).FirstOrDefault();
+            if (lightLtgPowerUsed != null)
+            {
+                XElement basicNodeElement = lightLtgPowerUsed as XElement;
+                var lightPowerUsedUrl = basicPointsUrl + basicNodeElement.Attribute("href").Value;
+                var lightPowerUsedXmlData = obixClientInit.oBixClient.ReadUriXml(new Uri(lightPowerUsedUrl));
+                if (lightPowerUsedXmlData.ResultSucceeded == true)
+                {
+                    SaveCurrentLightPowerUsed(lightPowerUsedXmlData, DeviceNameType.Conference4628A1761035);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Read and save updated day light sensor in database.
+        /// </summary>
+        /// <param name="basicXml">Passes xml object.</param>
+        /// <param name="basicPointsUrl">Xml url for nodes list.</param>
+        private static void SaveDayLightSensorObix(ObixResult<XElement> basicPointsResult, string basicPointsUrl)
+        {
+            var daylightSensor = basicPointsResult.Result.Document.Descendants().
+                                                  Where(d => d.FirstAttribute.Value == DeviceNameType.LtgPowerUsed).FirstOrDefault();
+            if (daylightSensor != null)
+            {
+                XElement basicNodeElement = daylightSensor as XElement;
+                var daylightSensorUsedUrl = basicPointsUrl + basicNodeElement.Attribute("href").Value;
+                var daylightSensorUsedXmlData = obixClientInit.oBixClient.ReadUriXml(new Uri(daylightSensorUsedUrl));
+                if (daylightSensorUsedXmlData.ResultSucceeded == true)
+                {
+                    SaveCurrentDaylightSensor(daylightSensorUsedXmlData, DeviceNameType.Conference4628A1761035);
+                }
+            }
+        }
+
+        #endregion
+        
+        /// <summary>
+        /// Binds device scene list.
+        /// </summary>
+        /// <typeparam name="T">Passes enum type.</typeparam>
+        /// <returns>Device scene list.</returns>
         public static List<SceneEntity> GetEnumList<T>()
         {
             var list = new List<SceneEntity>();
@@ -609,7 +526,11 @@ namespace LutronQuantum.Obix.ObixActions
             return list;
         }
 
-
+        /// <summary>
+        /// Gets current light level.
+        /// </summary>
+        /// <param name="deviceType">Passes device type.</param>
+        /// <returns>Current light state.</returns>
         public static LigtingModel GetCurrentLightState(int deviceType)
         {
             var devicedetail = (from bd in _dbcontext.ObixDevices
@@ -632,6 +553,11 @@ namespace LutronQuantum.Obix.ObixActions
             return devicedetail;
         }
 
+
+        /// <summary>
+        /// Gets device light state/level and scene.
+        /// </summary>
+        /// <returns>Device light details.</returns>
         public static DeviceDetailEntity GetsCurrentDeviceLevel()
         {
             var devicedetail = new DeviceDetailEntity

@@ -16,5 +16,6 @@ namespace Obix_JACE_V1.Common
         public const string OccupancyState = "OccupancyState";
         public const string LtgPowerUsed = "LtgPowerUsed";
         public const string DaylightSensor = "DaylightSensor";
+        public const string ObixPointName = "points";
     }
 }
